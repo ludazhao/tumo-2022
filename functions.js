@@ -23,16 +23,15 @@ function drawImg(x, y, imgObj) {
 
 function drawHouse(x, y) {
   drawImg(x, y, house1);
+  P5MAP[x][y] = 'House';
 }
 
 function drawPark(x, y) {
   drawImg(x, y, park1);
+  P5MAP[x][y] = 'Park';
 }
 
 function drawStreet(x, y) {
   drawImg(x, y, street1);
-}
-
-function drawDirt(x, y) {
-  drawImg(x, y, ground1);
+  P5MAP[x][y] = 'Street';
 }
