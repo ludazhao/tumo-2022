@@ -16,11 +16,24 @@ function flipDirection(direction) {
   }
 }
 
-// a custom 'sleep' or wait' function, that returns a Promise that resolves only after a timeout
-function sleep(millisecondsDuration) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, millisecondsDuration);
-  })
+
+// get an array of adjacent positions(in (x, y) pairs), taking
+// into account for edges of the board
+function getAdj(x, y) {
+  res = []
+  if (x > 0) {
+    res.push([x - 1, y]);
+  }
+  if (x < P5MAP.length - 1) {
+    res.push([x + 1, y]);
+  }
+  if (y > 0) {
+    res.push([x, y - 1]);
+  }
+  if (y < P5MAP.length - 1) {
+    res.push([x, y + 1]);
+  }
+  return res;
 }
 
 async function drawStreetRecursive(startX, endX, startY, endY, direction) {
@@ -41,16 +54,6 @@ async function drawStreetRecursive(startX, endX, startY, endY, direction) {
   drawStreetRecursive(startY, endY, street_row + 1, endX, flipDirection(direction));
 }
 
-function checkForStreet(x, y) {
-  if ((x < P5MAP.length - 1 && P5MAP[x + 1][y] === 'Street') ||
-      (x > 0 && P5MAP[x - 1][y] === 'Street') ||
-      (y < P5MAP.length - 1 && P5MAP[x][y + 1] === 'Street') ||
-      (y > 0 && P5MAP[x][y - 1] === 'Street')) {
-    return true;
-  }
-
-  return false;
-}
 
 function drawHousesNearStreets() {
   for (let i = 0; i < P5MAP.length; i++) {
@@ -58,8 +61,10 @@ function drawHousesNearStreets() {
       // draw a house if:
       //  1. there's nothing on the square
       //  2. if there is an adjacent street
-      if (P5MAP[i][j] === '' && checkForStreet(i, j)) {
-        drawHouse(i, j);
+      if (P5MAP[i][j] === '' && getAdj(i, j).some(([x, y]) => P5MAP[x][y] === 'Street')) {
+        if (random(1) < 0.7) {
+          drawHouse(i, j);
+        }
       }
     }
   }
@@ -72,7 +77,9 @@ function drawParks() {
       // draw a park if:
       //  1. there's nothing on the square
       if (P5MAP[i][j] === '') {
-        drawPark(i, j);
+        if (random(1) < 0.5) {
+          drawPark(i, j);
+        }
       }
     }
   }
@@ -85,10 +92,140 @@ function drawLandscape() {
   drawParks();
 }
 
+function drawScorecard() {
+  stroke('black');
+  rect(BG, 0, SCORECARD_X, SCORECARD_Y)
+
+  strokeWeight(1);
+  textSize(16);
+  text('Key Metrics', BG + SCORECARD_LABEL_X_OFFSET, SCORECARD_LABEL_Y_OFFSET);
+}
+
+
+function getParkAccessRecursive(raster, x, y, visited) {
+  if (P5MAP[x][y] === 'Park') {
+    return 0;
+  }
+
+  if (raster[x][y] !== null) {
+    // return score if it's already calculated
+    return raster[x][y];
+  }
+
+  const adjScores = [];
+
+  visited[x][y] = true;
+  for (const coords of getAdj(x, y)) {
+    const [adjX, adjY] = coords;
+    if (P5MAP[adjX][adjY] !== 'House' && !visited[adjX][adjY]) {
+      adjScore = getParkAccessRecursive(raster, adjX, adjY, visited);
+      adjScores.push(adjScore);
+    }
+  }
+  // reset flag raster
+  visited[x][y] = false;
+
+  const validAdjScores = adjScores.filter(val => val !== null);
+  // if no valid adjacent score, this square is a "dead-end". leave as is
+  if (validAdjScores.length === 0) {
+    return null;
+  }
+
+  score = Math.min(...validAdjScores) + 1;
+  // cache value
+  raster[x][y] = score;
+  return score;
+}
+
+/** Generate a raster denoting the park access per square */
+function generateParkAccess() {
+
+  // "-1" denotes squares that have not been visited
+  const raster = new Array(BLOCK_SIZE).fill([]).map(_arr => new Array(BLOCK_SIZE).fill(null))
+  const visited = new Array(BLOCK_SIZE).fill([]).map(_arr => new Array(BLOCK_SIZE).fill(false))
+
+  for (let i = 0; i < P5MAP.length; i++) {
+    for (let j = 0; j < P5MAP.length; j++) {
+      // draw a house if:
+      //  1. there's nothing on the square
+      //  2. if there is an adjacent street
+      if (P5MAP[i][j] === 'House') {
+        getParkAccessRecursive(raster, i, j, visited);
+      }
+    }
+  }
+  console.log(P5MAP);
+  console.log(raster);
+
+  return raster;
+}
+
+/**
+ * Percentage of households < 3 squares away from parks
+ */
+function calculateParkAccess(parkRaster) {
+  return 0;
+}
+
+function sumResiGFA() {
+  let numHouses = 0;
+  for (let i = 0; i < P5MAP.length; i++) {
+    for (let j = 0; j < P5MAP.length; j++) {
+      // draw a house if:
+      //  1. there's nothing on the square
+      //  2. if there is an adjacent street
+      if (P5MAP[i][j] === 'House') {
+        numHouses += 1;
+      }
+    }
+  }
+
+  // Assume 3 story houses
+  return numHouses * 3 / BLOCK_SIZE / BLOCK_SIZE;
+}
+
+function addToScorecard(metricName, score) {
+  strokeWeight(0.5);
+  textSize(14);
+  // move down to the next column
+  SCORECARD_LABEL_Y_OFFSET += SCORECARD_TEXT_HEIGHT;
+  text(metricName, BG + SCORECARD_LABEL_X_OFFSET, SCORECARD_LABEL_Y_OFFSET);
+  text(score.toFixed(2), BG + SCORECARD_X - SCORECARD_LABEL_X_OFFSET * 2, SCORECARD_LABEL_Y_OFFSET);
+}
+
+function visualizeRaster(raster) {
+
+  const min = Math.min(...raster.map(arr => Math.min(...arr)))
+  const max = Math.max(...raster.map(arr => Math.max(...arr)))
+
+  for (let i = 0; i < raster.length; i++) {
+    for (let j = 0; j < raster.length; j++) {
+      if (raster[i][j] === null || P5MAP[i][j] !== 'House') {
+        continue;
+      }
+      // color the square given the value of the raster
+      const perc = (raster[i][j] - min) /(max - min)
+      const c = color(255 - 255 * (1 - perc) * (1 - perc), 240, 0, 100)
+      fill(c);
+      drawSquare(i, j, 1)
+    }
+  }
+}
+
 function draw() {
+  /** Draw UI elements */
   drawBackground();
   drawLandscape();
   addSaveButton();
+  drawScorecard();
 
+  /** Calculate metrics */
+  const parkAccessRaster = generateParkAccess();
+  const parkAccessScore = calculateParkAccess(parkAccessRaster);
+  addToScorecard('Park Access', parkAccessScore);
+
+  const gfaResiScore = sumResiGFA();
+  addToScorecard('Floor Area Ratio (FAR)', gfaResiScore);
+  visualizeRaster(parkAccessRaster, '#fffa00', '#00fa00')
   noLoop();
 }

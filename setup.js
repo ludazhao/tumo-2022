@@ -1,7 +1,13 @@
-const GREY = 200;
+const BG_COLOR = 255; // white
 const SCALE = 50;
 const BACKGROUND_SIZE = 15;
 const BG = BACKGROUND_SIZE * SCALE;
+
+const SCORECARD_X = 400;
+const SCORECARD_Y = BG;
+const SCORECARD_LABEL_X_OFFSET = 40;
+let SCORECARD_LABEL_Y_OFFSET = 60;
+const SCORECARD_TEXT_HEIGHT = 40;
 
 /** assets */
 let house1;
@@ -15,8 +21,8 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(BG, BG);
-  background(GREY);
+  createCanvas(BG + SCORECARD_X, BG);
+  background(BG_COLOR);
 }
 
 /** HELPER FUNCTIONS TO DRAW THINGS */
