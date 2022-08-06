@@ -6,7 +6,7 @@ function draw() {
   drawPoint(1, 1);
 }
 
-/** Task 1-2: Draw another point */
+/** Draw another point */
 function draw() {
   drawPoint(1, 1);
   drawPoint(2, 2);
@@ -53,55 +53,53 @@ function draw() {
   drawSquare(2, 1, 1);
   drawSquare(3, 1, 1);
   drawSquare(4, 1, 1);
-  drawSquare(5, 1, 1);
-  drawSquare(6, 1, 1);
 }
 
 /** Task 5-1: Draw a row of blocks, BETTER */
 function draw() {
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     drawSquare(i, 1, 1);
   }
 }
 
 /** Task 6: Draw three rows of blocks */
 function draw() {
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     drawSquare(i, 1, 1);
   }
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     drawSquare(i, 2, 1);
   }
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     drawSquare(i, 3, 1);
   }
 }
 
 /** Task 6: Draw an entire background (STRETCH) */
 function draw() {
-  for (let j = 0; j < 7; j++) {
-    for (let i = 0; i < 7; i++) {
+  for (let j = 0; j < 5; j++) {
+    for (let i = 0; i < 5; i++) {
       drawSquare(i, j, 1);
     }
   }
 }
 
-/** Task 7: Draw Parks, streets */
+/** Task 5: Draw Parks, streets */
 function draw() {
-  for (let j = 0; j < 7; j++) {
-    for (let i = 0; i < 7; i++) {
+  for (let j = 0; j < 5; j++) {
+    for (let i = 0; i < 5; i++) {
       drawSquare(i, j, 1);
     }
   }
 
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     drawStreet(i, 3);
   }
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     drawHouse(i, 2);
   }
 
@@ -110,61 +108,103 @@ function draw() {
 
 /** Exercise 2: Draw this neighborhood! */
 function draw() {
-  for (let j = 0; j < 7; j++) {
-    for (let i = 0; i < 7; i++) {
+  for (let j = 0; j < 5; j++) {
+    for (let i = 0; i < 5; i++) {
       drawSquare(i, j, 1);
     }
   }
 
   // Horizontal street
-  for (let i = 0; i < 7; i++) {
-    drawHouse(i, 2);
-    drawStreet(i, 3);
+  for (let i = 0; i < 5; i++) {
+    drawHouse(i, 1);
+    drawStreet(i, 2);
   }
 
   // Vertical street
-  for (let i = 4; i < 7; i++) {
+  for (let i = 3; i < 5; i++) {
     drawHouse(2, i);
     drawStreet(3, i);
-    drawHouse(4, i);
   }
 
-  drawPark(1, 5);
-  drawPark(5, 5);
-
+  drawPark(1, 3);
+  drawPark(4, 3);
 }
+
 
 /** PAUSE - BREAK */
 
 /** Go through basic Javascript materials (http://web.stanford.edu/class/cs106aj/res/lectures/04-Expressions-In-JavaScript.pdf) */
-// Learn about variables + functions
+// Learn about variables
+
+const CITY_SIZE = 5;
+
+function draw() {
+  let housesCount = 0;
+
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
+      drawSquare(i, j, 1);
+    }
+  }
+
+  // Horizontal street
+  for (let i = 0; i < CITY_SIZE; i++) {
+    drawHouse(i, 1);
+    housesCount += 1;
+
+    drawStreet(i, 2);
+  }
+
+  // Vertical street
+  for (let i = 3; i < CITY_SIZE; i++) {
+    drawHouse(2, i);
+    housesCount += 1;
+
+    drawStreet(3, i);
+  }
+
+  drawPark(1, 3);
+  drawPark(4, 3);
+
+  console.log(housesCount);
+}
+
+
+
 
 /** Task 8: decompose into functions */
+const CITY_SIZE = 5;
 
 function drawBackground() {
-  for (let j = 0; j < 7; j++) {
-    for (let i = 0; i < 7; i++) {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
       drawSquare(i, j, 1);
     }
   }
 }
 
 function drawLandscape() {
+  let housesCount = 0;
   // Horizontal street
-  for (let i = 0; i < 7; i++) {
-    drawHouse(i, 2);
-    drawStreet(i, 3);
+  for (let i = 0; i < CITY_SIZE; i++) {
+    drawHouse(i, 1);
+    housesCount += 1;
+
+    drawStreet(i, 2);
   }
 
   // Vertical street
-  for (let i = 4; i < 7; i++) {
+  for (let i = 3; i < CITY_SIZE; i++) {
     drawHouse(2, i);
+    housesCount += 1;
+
     drawStreet(3, i);
-    drawHouse(4, i);
   }
 
-  drawPark(1, 5);
-  drawPark(5, 5);
+  drawPark(1, 3);
+  drawPark(4, 3);
+
+  console.log(housesCount);
 }
 
 function draw() {
@@ -172,38 +212,42 @@ function draw() {
   drawLandscape();
 }
 
-/** Task 10: Razzle Dazzle */
-const BLOCK_SIZE = 7
+/** Exercise 9: Expand our canvas */
+const CITY_SIZE = 15;
 
 function drawBackground() {
-  for (let j = 0; j < BLOCK_SIZE; j++) {
-    for (let i = 0; i < BLOCK_SIZE; i++) {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
       drawSquare(i, j, 1);
     }
   }
 }
 
 function drawLandscape() {
+  let housesCount = 0;
   // Horizontal street
-  for (let i = 0; i < BLOCK_SIZE; i++) {
-    drawHouse(i, 2);
-    drawStreet(i, 3);
+  for (let i = 0; i < CITY_SIZE; i++) {
+    drawHouse(i, 1);
+    housesCount += 1;
+
+    drawStreet(i, 2);
   }
 
   // Vertical street
-  for (let i = 4; i < BLOCK_SIZE; i++) {
+  for (let i = 3; i < CITY_SIZE; i++) {
     drawHouse(2, i);
+    housesCount += 1;
+
     drawStreet(3, i);
-    drawHouse(4, i);
   }
 
+  drawPark(1, 3);
+  drawPark(4, 3);
 
-  drawPark(1, 5);
-  drawPark(5, 5);
+  console.log(housesCount);
 }
 
 function draw() {
   drawBackground();
   drawLandscape();
-  addSaveButton();
 }

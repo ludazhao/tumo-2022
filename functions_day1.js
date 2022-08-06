@@ -1,25 +1,3 @@
-// const BG_COLOR = 255; // white
-const BG_COLOR = 240; // grey
-const SCALE = 100;
-const BACKGROUND_SIZE = 15;
-const BG = BACKGROUND_SIZE * SCALE;
-/** assets */
-let house1;
-let park1;
-let street1;
-
-function preload() {
-  house1 = loadImage('assets/house1.png');
-  park1 = loadImage('assets/park1.png');
-  street1 = loadImage('assets/street1.jpeg');
-}
-
-function setup() {
-  createCanvas(BG + SCORECARD_X, BG);
-  background(BG_COLOR);
-  noLoop();
-}
-
 
 /** HELPER FUNCTIONS TO DRAW THINGS */
 function drawPoint(x, y) {
@@ -42,4 +20,31 @@ function drawImg(x, y, imgObj) {
     SCALE,
     SCALE
   );
+}
+
+function drawHouse(x, y) {
+  drawImg(x, y, house1);
+  P5MAP[x][y] = 'House';
+}
+
+function drawPark(x, y) {
+  drawImg(x, y, park1);
+  P5MAP[x][y] = 'Park';
+}
+
+function drawStreet(x, y) {
+  drawImg(x, y, street1);
+  P5MAP[x][y] = 'Street';
+}
+
+
+function addSaveButton() {
+  button = createButton('Save File');
+  button.position(0, 0);
+  button.mousePressed(saveFile);
+}
+
+
+function saveFile() {
+  saveJSON(P5MAP, 'city.json');
 }

@@ -1,45 +1,86 @@
-/** FINAL DAY 2 */
-const BLOCK_SIZE = 7
+// Task 1: randomly placing streets
+
+const CITY_SIZE = 15;
 
 function drawBackground() {
-  for (let j = 0; j < BLOCK_SIZE; j++) {
-    for (let i = 0; i < BLOCK_SIZE; i++) {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
       drawSquare(i, j, 1);
     }
   }
 }
 
 function drawLandscape() {
+  let horizontalStreetIndex = int(random(0, CITY_SIZE));
+  let verticalStreetIndex = int(random(0, CITY_SIZE));
+
   // Horizontal street
-  for (let i = 0; i < BLOCK_SIZE; i++) {
-    drawHouse(i, 2);
-    drawStreet(i, 3);
+  for (let i = 0; i < CITY_SIZE; i++) {
+    drawStreet(i, horizontalStreetIndex);
   }
+
+
 
   // Vertical street
-  for (let i = 4; i < BLOCK_SIZE; i++) {
-    drawHouse(2, i);
-    drawStreet(3, i);
-    drawHouse(4, i);
+  for (let i = horizontalStreetIndex + 1; i < CITY_SIZE; i++) {
+    drawStreet(verticalStreetIndex, i);
   }
-
-
-  drawPark(1, 5);
-  drawPark(5, 5);
 }
+
 
 function draw() {
   drawBackground();
   drawLandscape();
-  addSaveButton();
 }
 
-/** FINAL DAY 2 */
-const BLOCK_SIZE = 15
+
+// Exercise: Place another street to the top
+
+const CITY_SIZE = 15;
 
 function drawBackground() {
-  for (let j = 0; j < BLOCK_SIZE; j++) {
-    for (let i = 0; i < BLOCK_SIZE; i++) {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
+      drawSquare(i, j, 1);
+    }
+  }
+}
+
+function drawLandscape() {
+  let horizontalStreetIndex = int(random(1, CITY_SIZE - 1));
+  let verticalStreetDownIndex = int(random(1, CITY_SIZE - 1));
+  let verticalStreetUpIndex = int(random(1, CITY_SIZE - 1));
+
+  // Horizontal street
+  for (let i = 0; i < CITY_SIZE; i++) {
+    drawStreet(i, horizontalStreetIndex);
+  }
+
+  // Vertical street 1
+  for (let i = 0; i < horizontalStreetIndex; i++) {
+    drawStreet(verticalStreetUpIndex, i);
+  }
+
+  // Vertical street 2
+  for (let i = horizontalStreetIndex + 1; i < CITY_SIZE; i++) {
+    drawStreet(verticalStreetDownIndex, i);
+  }
+}
+
+
+function draw() {
+  drawBackground();
+  drawLandscape();
+}
+
+
+// Task 3: Recursively placing streets
+
+const CITY_SIZE = 15;
+
+function drawBackground() {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
       drawSquare(i, j, 1);
     }
   }
@@ -53,7 +94,7 @@ function flipDirection(direction) {
   }
 }
 
-async function drawStreetRecursive(startX, endX, startY, endY, direction) {
+function drawStreetRecursive(startX, endX, startY, endY, direction) {
   if ((endX - startX) < 3 || (endY - startY) < 3 || (endX - startX) * (endY - startY) < 30) {
     return;
   }
@@ -71,38 +112,194 @@ async function drawStreetRecursive(startX, endX, startY, endY, direction) {
   drawStreetRecursive(startY, endY, street_row + 1, endX, flipDirection(direction));
 }
 
-function checkForStreet(x, y) {
-  if ((x < P5MAP.length - 1 && P5MAP[x + 1][y] === 'Street') ||
-    (x > 0 && P5MAP[x - 1][y] === 'Street') ||
-    (y < P5MAP.length - 1 && P5MAP[x][y + 1] === 'Street') ||
-    (y > 0 && P5MAP[x][y - 1] === 'Street')) {
-    return true;
+
+function drawLandscape() {
+  drawStreetRecursive(0, BLOCK_SIZE, 0, BLOCK_SIZE, 'HORIZONTAL');
+}
+
+
+function draw() {
+  drawBackground();
+  drawLandscape();
+}
+
+// Task 3: Introduce STATE + CLASSES
+
+const CITY_SIZE = 15;
+const CITY_STATE = new City(CITY_SIZE);
+
+function drawBackground() {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
+      drawSquare(i, j, 1);
+    }
+  }
+}
+
+function flipDirection(direction) {
+  if (direction === 'HORIZONTAL') {
+    return 'VERTICAL';
+  } else {
+    return 'HORIZONTAL';
+  }
+}
+
+function drawStreetRecursive(startX, endX, startY, endY, direction) {
+  if ((endX - startX) < 3 || (endY - startY) < 3 || (endX - startX) * (endY - startY) < 30) {
+    return;
+  }
+  const street_row = int(random(startX + 1, endX - 1));
+  for (let i = startY; i < endY; i++) {
+    if (direction === 'HORIZONTAL') {
+      CITY_STATE.drawStreet(i, street_row);
+    } else {
+      CITY_STATE.drawStreet(street_row, i);
+    }
   }
 
-  return false;
+  // swap the X-Y coordinates
+  drawStreetRecursive(startY, endY, startX, street_row, flipDirection(direction));
+  drawStreetRecursive(startY, endY, street_row + 1, endX, flipDirection(direction));
+}
+
+
+function drawLandscape() {
+  drawStreetRecursive(0, CITY_SIZE, 0, CITY_SIZE, 'HORIZONTAL');
+}
+
+
+function draw() {
+  drawBackground();
+  drawLandscape();
+}
+
+// Task 4: Draw houses adjacent to streets
+
+const CITY_SIZE = 15;
+const CITY_STATE = new City(CITY_SIZE);
+
+function drawBackground() {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
+      drawSquare(i, j, 1);
+    }
+  }
+}
+
+function flipDirection(direction) {
+  if (direction === 'HORIZONTAL') {
+    return 'VERTICAL';
+  } else {
+    return 'HORIZONTAL';
+  }
+}
+
+function drawStreetRecursive(startX, endX, startY, endY, direction) {
+  if ((endX - startX) < 3 || (endY - startY) < 3 || (endX - startX) * (endY - startY) < 30) {
+    return;
+  }
+  const street_row = int(random(startX + 1, endX - 1));
+  for (let i = startY; i < endY; i++) {
+    if (direction === 'HORIZONTAL') {
+      CITY_STATE.drawStreet(i, street_row);
+    } else {
+      CITY_STATE.drawStreet(street_row, i);
+    }
+  }
+
+  // swap the X-Y coordinates
+  drawStreetRecursive(startY, endY, startX, street_row, flipDirection(direction));
+  drawStreetRecursive(startY, endY, street_row + 1, endX, flipDirection(direction));
 }
 
 function drawHousesNearStreets() {
-  for (let i = 0; i < P5MAP.length; i++) {
-    for (let j = 0; j < P5MAP.length; j++) {
+  for (let i = 0; i < CITY_SIZE; i++) {
+    for (let j = 0; j < CITY_SIZE; j++) {
       // draw a house if:
       //  1. there's nothing on the square
       //  2. if there is an adjacent street
-      if (P5MAP[i][j] === '' && checkForStreet(i, j)) {
-        drawHouse(i, j);
+      if (CITY_STATE.getTile(i, j) === Tiles.EMPTY &&
+        CITY_STATE.getSurrounding(i, j).some((state) => state === Tiles.STREET)) {
+        CITY_STATE.drawHouse(i, j);
       }
     }
   }
 }
 
+function drawLandscape() {
+  drawStreetRecursive(0, CITY_SIZE, 0, CITY_SIZE, 'HORIZONTAL');
+  drawHousesNearStreets();
+}
+
+function draw() {
+  drawBackground();
+  drawLandscape();
+}
+
+// Exercise: Draw Parks on roughly half of unoccupied squares
+
+const CITY_SIZE = 15;
+const CITY_STATE = new City(CITY_SIZE);
+
+function drawBackground() {
+  for (let j = 0; j < CITY_SIZE; j++) {
+    for (let i = 0; i < CITY_SIZE; i++) {
+      drawSquare(i, j, 1);
+    }
+  }
+}
+
+function flipDirection(direction) {
+  if (direction === 'HORIZONTAL') {
+    return 'VERTICAL';
+  } else {
+    return 'HORIZONTAL';
+  }
+}
+
+function drawStreetRecursive(startX, endX, startY, endY, direction) {
+  if ((endX - startX) < 3 || (endY - startY) < 3 || (endX - startX) * (endY - startY) < 30) {
+    return;
+  }
+  const street_row = int(random(startX + 1, endX - 1));
+  for (let i = startY; i < endY; i++) {
+    if (direction === 'HORIZONTAL') {
+      CITY_STATE.drawStreet(i, street_row);
+    } else {
+      CITY_STATE.drawStreet(street_row, i);
+    }
+  }
+
+  // swap the X-Y coordinates
+  drawStreetRecursive(startY, endY, startX, street_row, flipDirection(direction));
+  drawStreetRecursive(startY, endY, street_row + 1, endX, flipDirection(direction));
+}
+
+function drawHousesNearStreets() {
+  for (let i = 0; i < CITY_SIZE; i++) {
+    for (let j = 0; j < CITY_SIZE; j++) {
+      // draw a house if:
+      //  1. there's nothing on the square
+      //  2. if there is an adjacent street
+      if (CITY_STATE.getTile(i, j) === Tiles.EMPTY &&
+        CITY_STATE.getSurrounding(i, j).some((state) => state === Tiles.STREET)) {
+        if (random(1) < 0.8) {
+          CITY_STATE.drawHouse(i, j);
+        }
+      }
+    }
+  }
+}
 
 function drawParks() {
-  for (let i = 0; i < P5MAP.length; i++) {
-    for (let j = 0; j < P5MAP.length; j++) {
+  for (let i = 0; i < CITY_SIZE; i++) {
+    for (let j = 0; j < CITY_SIZE; j++) {
       // draw a park if:
       //  1. there's nothing on the square
-      if (P5MAP[i][j] === '') {
-        drawPark(i, j);
+      if (CITY_STATE.getTile(i, j) === Tiles.EMPTY) {
+        if (random(1) < 0.5) {
+          CITY_STATE.drawPark(i, j);
+        }
       }
     }
   }
@@ -110,60 +307,12 @@ function drawParks() {
 
 
 function drawLandscape() {
-  drawStreetRecursive(0, BLOCK_SIZE, 0, BLOCK_SIZE, 'HORIZONTAL');
+  drawStreetRecursive(0, CITY_SIZE, 0, CITY_SIZE, 'HORIZONTAL');
   drawHousesNearStreets();
   drawParks();
-}
-
-function drawScorecard() {
-  stroke('black');
-  rect(BG, 0, SCORECARD_X, SCORECARD_Y)
-
-  strokeWeight(1);
-  textSize(16);
-  text('Key Metrics', BG + SCORECARD_LABEL_X_OFFSET, SCORECARD_LABEL_Y_OFFSET);
-}
-
-function calculateParkAccess() {
-  // TODO: implement
-  return 0;
-}
-
-function sumResiGFA() {
-  let numHouses = 0;
-  for (let i = 0; i < P5MAP.length; i++) {
-    for (let j = 0; j < P5MAP.length; j++) {
-      // draw a house if:
-      //  1. there's nothing on the square
-      //  2. if there is an adjacent street
-      if (P5MAP[i][j] === 'House') {
-        numHouses += 1;
-      }
-    }
-  }
-
-  // Assume 3 story houses
-  return numHouses * 3 / BLOCK_SIZE / BLOCK_SIZE;
-}
-
-function addToScorecard(metricName, score) {
-  strokeWeight(0.5);
-  textSize(14);
-  // move down to the next column
-  SCORECARD_LABEL_Y_OFFSET += SCORECARD_TEXT_HEIGHT;
-  text(metricName, BG + SCORECARD_LABEL_X_OFFSET, SCORECARD_LABEL_Y_OFFSET);
-  text(score.toFixed(2), BG + SCORECARD_X - SCORECARD_LABEL_X_OFFSET * 2, SCORECARD_LABEL_Y_OFFSET);
 }
 
 function draw() {
   drawBackground();
   drawLandscape();
-  addSaveButton();
-
-  drawScorecard();
-  const parkAccessScore = calculateParkAccess();
-  const gfaResiScore = sumResiGFA();
-  addToScorecard('Floor Area Ratio (FAR)', gfaResiScore);
-  addToScorecard('Park Access', parkAccessScore);
-  noLoop();
 }
