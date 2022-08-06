@@ -14,6 +14,7 @@ function drawScorecard() {
 }
 
 function addToScorecard(metricName, score) {
+  fill('black');
   strokeWeight(1);
   textSize(28);
   // move down to the next column

@@ -75,6 +75,27 @@ function getParkAccessBFS(x, y) {
   return null;
 }
 
+
+function visualizeRaster(raster) {
+
+  const min = Math.min(...raster.map(arr => Math.min(...arr)))
+  const max = Math.max(...raster.map(arr => Math.max(...arr)))
+
+  for (let i = 0; i < raster.length; i++) {
+    for (let j = 0; j < raster.length; j++) {
+      if (raster[i][j] === null || CITY_STATE.getTile(i, j) !== Tiles.HOUSE) {
+        continue;
+      }
+      // color the square given the value of the raster
+      const perc = (raster[i][j] - min) / (max - min);
+      const c = color(255 - 255 * (1 - perc) * (1 - perc), 240, 0, 100);
+      fill(c);
+      drawSquare(i, j, 1);
+    }
+  }
+}
+
+
 /** Generate a raster denoting the park access per square */
 function generateParkAccess() {
   // "-1" denotes squares that have not been visited
