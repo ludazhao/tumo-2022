@@ -71,11 +71,10 @@ function drawLandscape() {
   drawParks();
 }
 
-
 function draw() {
   drawBackground();
   drawLandscape();
-
+  addSaveButton();
   drawScorecard();
 
   const far = calculateFAR();
